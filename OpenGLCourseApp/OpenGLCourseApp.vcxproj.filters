@@ -25,6 +25,9 @@
     <Filter Include="Source Files\Imgui">
       <UniqueIdentifier>{ee1664be-ebd8-479b-90a5-ae33ff4ef734}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\OBJ">
+      <UniqueIdentifier>{31a3cecc-10d1-4b2a-8da0-8e1177deeb88}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -150,5 +153,43 @@
     <Image Include="Textures\rope.jpg">
       <Filter>Source Files\Textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Obj\human1.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\rail1.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\wheel6.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\rail2.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\rail3.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\rope1.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\trolley_body.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\wheel1.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\wheel2.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\wheel3.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\wheel4.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
+    <Resource Include="Obj\wheel5.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Resource>
   </ItemGroup>
 </Project>

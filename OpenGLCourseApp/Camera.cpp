@@ -19,7 +19,6 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLf
 
 void Camera::keyControl(bool* keys, GLfloat deltaTime)
 {
-	if (!cameraLocked)
 	{
 		GLfloat velocity = moveSpeed * deltaTime;
 
@@ -48,7 +47,6 @@ void Camera::keyControl(bool* keys, GLfloat deltaTime)
 
 void Camera::mouseControl(GLfloat xChange, GLfloat yChange)
 {
-	if (!cameraLocked)
 	{
 		xChange *= turnSpeed;
 		yChange *= turnSpeed;

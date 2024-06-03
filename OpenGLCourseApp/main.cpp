@@ -156,22 +156,22 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(mainWindow.getGLFWWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    glfwSetMouseButtonCallback(mainWindow.getGLFWWindow(), mouseButtonCallback);
+    //glfwSetMouseButtonCallback(mainWindow.getGLFWWindow(), mouseButtonCallback);
 
     CreateObjects();
     CreateShaders();
 
-    LoadModel("D:/Docs/Visual Studio/Trolley Problem/OpenGLCourseApp/Obj/trolley_body.obj", trolley_mesh);    
+    LoadModel("OBJ/trolley_body.obj", trolley_mesh);    
     for (int i = 0; i < 6; i++) {
-        std::string filePath = "D:/Docs/Visual Studio/Trolley Problem/OpenGLCourseApp/Obj/wheel" + std::to_string(i + 1) + ".obj";
+        std::string filePath = "OBJ/wheel" + std::to_string(i + 1) + ".obj";
         LoadModel(filePath, wheel_mesh[i]);
     }
     for (int i = 0; i < 3; i++) {
-        std::string filePath = "D:/Docs/Visual Studio/Trolley Problem/OpenGLCourseApp/Obj/rail" + std::to_string(i + 1) + ".obj";
+        std::string filePath = "OBJ/rail" + std::to_string(i + 1) + ".obj";
         LoadModel(filePath, rail_mesh[i]);
     }
-    LoadModel("D:/Docs/Visual Studio/Trolley Problem/OpenGLCourseApp/Obj/human1.obj", human_mesh[0]);
-    LoadModel("D:/Docs/Visual Studio/Trolley Problem/OpenGLCourseApp/Obj/rope1.obj", rope_mesh);
+    LoadModel("OBJ/human1.obj", human_mesh[0]);
+    LoadModel("OBJ/rope1.obj", rope_mesh);
 
     // camera = Camera(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 5.0f, 0.2f);
     camera = Camera(glm::vec3(-30.0f, 30.0f, 100.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, -30.0f, 5.0f, 0.2f);
@@ -216,18 +216,24 @@ int main() {
         ImGui::Begin("Trolley Problem");
         // ImGui::Text("There's a runaway trolley headed towards five people tied up on one track.\nYou're standing next to a lever that can divert the trolley to another track,\nbut there's one person tied up there.\nYou must decide whether to pull the lever, sacrificing one person to save five,\nor do nothing and let the trolley continue, leading to the death of the five people:");
 
-        if (ImGui::Button("Scene 0")) {
+      // Start the ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // Create ImGui window
+        ImGui::Begin("Scene Selection");
+        if (ImGui::Button("The trolley turn")) {
             animation_scene = 0;
-            run_animation = true;
         }
-        if (ImGui::Button("Scene 1")) {
+        if (ImGui::Button("The trolley moves straight")) {
             animation_scene = 1;
-            run_animation = true;
         }
-        if (ImGui::Button("Scene 2")) {
-            animation_scene = 2;
-            run_animation = true;
-        }
+        ImGui::End();
+
+        // Rendering commands here
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ImGui::End();
 
@@ -416,6 +422,8 @@ int main() {
 
         glUseProgram(0);
 
+        // ImGui rendering
+        ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         mainWindow.swapBuffers();
