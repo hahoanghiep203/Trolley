@@ -61,7 +61,6 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-
 void LoadMesh(aiMesh* mesh, const aiScene* scene, std::vector<Mesh*>& meshList) {
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
@@ -140,7 +139,6 @@ void CreateShaders() {
     shader1->CreateFromFiles(vShader, fShader);
     shaderList.push_back(*shader1);
 }
-
 
 int main() {
     mainWindow = Window(800, 600);
