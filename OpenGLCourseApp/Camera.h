@@ -18,7 +18,8 @@ public:
 
 	void Lock() { cameraLocked = true; }
 	void Unlock() { cameraLocked = false; }
-
+	void Rotate(float newYaw,float newPitch);
+	void Move(float x,float y,float z);
 	glm::mat4 calculateViewMatrix();
 
 	~Camera();

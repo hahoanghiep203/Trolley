@@ -74,6 +74,17 @@ glm::mat4 Camera::calculateViewMatrix()
 	return glm::lookAt(position, position + front, up);
 }
 
+void Camera::Rotate(float newYaw,float newPitch) {
+	yaw = newYaw;
+	pitch = newPitch;
+	update();
+}
+
+void Camera::Move(float x, float y, float z) {
+	position += glm::vec3(x, y, z);
+	update();
+}
+
 void Camera::update()
 {
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
@@ -84,6 +95,8 @@ void Camera::update()
 	right = glm::normalize(glm::cross(front, worldUp));
 	up = glm::normalize(glm::cross(right, front));
 }
+
+
 
 
 Camera::~Camera()

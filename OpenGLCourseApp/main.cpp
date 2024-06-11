@@ -16,6 +16,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <irrKlang.h>
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -23,22 +25,22 @@
 #include "Window.h"
 #include "Mesh.h"
 #include "Shader.h"
-#include "Camera.h" 
+#include "Camera.h"
 #include "Texture.h"
 #include "Light.h"
 
-float trainPosition = 0.0f;
+float trainPosition = -200.0f;
 float wheelRotation = 0.0f;
 const float toRadians = 3.14159265f / 180.0f;
 bool run_animation = false;
 int animation_scene = 0; // 0: The trolley turn, 1: the trolley moves straight  
 
 Window mainWindow;
-std::vector<Mesh*> plane_mesh, trolley_mesh, rail_mesh[3], wheel_mesh[6], human_mesh[6], rope_mesh;
+std::vector<Mesh*> plane_mesh, trolley_mesh, rail_mesh[3], wheel_mesh[6], human_mesh[7], rope_mesh, leaver_mesh;
 std::vector<Shader> shaderList;
 Camera camera;
 
-Texture dirt, trolley, rail, human, rope;
+Texture dirt, trolley, rail, human[7], rope, leaver;
 
 DirectionalLight dLight(1.0f, 1.0f, 1.0f, 0.5f, 0.8f, 1.0f);
 
@@ -51,15 +53,16 @@ static const char* vShader = "Shaders/shader.vert";
 // Fragment Shader
 static const char* fShader = "Shaders/shader.frag";
 
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-    {
-        run_animation = true;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        camera.Unlock();
-    }
-}
+//void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+//{
+//    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+//    {
+//        run_animation = true;
+//        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//        camera.Unlock();
+//    }
+//}
+
 
 void LoadMesh(aiMesh* mesh, const aiScene* scene, std::vector<Mesh*>& meshList) {
     std::vector<float> vertices;
@@ -108,7 +111,7 @@ void LoadModel(const std::string& filePath, std::vector<Mesh*>& meshList) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
     if (!scene) {
-        printf("Model (%s) failed to load: %s", filePath, importer.GetErrorString());
+        printf("Model (%s) failed to load: %s", filePath.c_str(), importer.GetErrorString());
         return;
     }
 
@@ -140,8 +143,16 @@ void CreateShaders() {
     shaderList.push_back(*shader1);
 }
 
+bool debugEnabled = true;
+
+void debugPrint(const std::string& message) {
+    if (debugEnabled) {
+        std::cout << message << std::endl;
+    }
+}
+
 int main() {
-    mainWindow = Window(800, 600);
+    mainWindow = Window(1600, 900);
     mainWindow.Initialise();
 
     glfwSetInputMode(mainWindow.getGLFWWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -159,7 +170,8 @@ int main() {
     CreateObjects();
     CreateShaders();
 
-    LoadModel("OBJ/trolley_body.obj", trolley_mesh);    
+    // Load models
+    LoadModel("OBJ/trolley_body.obj", trolley_mesh);
     for (int i = 0; i < 6; i++) {
         std::string filePath = "OBJ/wheel" + std::to_string(i + 1) + ".obj";
         LoadModel(filePath, wheel_mesh[i]);
@@ -168,27 +180,44 @@ int main() {
         std::string filePath = "OBJ/rail" + std::to_string(i + 1) + ".obj";
         LoadModel(filePath, rail_mesh[i]);
     }
-    LoadModel("OBJ/human1.obj", human_mesh[0]);
+    for (int i = 0; i < 7; i++) {
+        std::string filePath = "OBJ/human" + std::to_string(i + 1) + ".obj";
+        LoadModel(filePath, human_mesh[i]);
+    }
     LoadModel("OBJ/rope1.obj", rope_mesh);
+    LoadModel("OBJ/leaver.obj", leaver_mesh);
 
-    // camera = Camera(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 5.0f, 0.2f);
-    camera = Camera(glm::vec3(-30.0f, 30.0f, 100.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, -30.0f, 5.0f, 0.2f);
+    camera = Camera(glm::vec3(-30.0f, 30.0f, 100.0f - 200.0f), glm::vec3(0.0f, 1.0f, 0.0f), -45.0f, -30.0f, 5.0f, 0.2f);
 
+    // Assign textures
     dirt = Texture("Textures/dirt.jpg");
     trolley = Texture("Textures/trolley.jpg");
     rail = Texture("Textures/rail.jpg");
-    human = Texture("Textures/human.jpg");
+    for (int i = 0; i < 7; i++) {
+        std::string filePath = "Textures/human" + std::to_string(i + 1) + ".jpg";
+        human[i] = Texture(filePath);
+    }
     rope = Texture("Textures/rope.jpg");
-
     dirt.LoadTexture();
     trolley.LoadTexture();
     rail.LoadTexture();
-    human.LoadTexture();
+    for (int i = 0; i < 7; i++) {
+        human[i].LoadTexture();
+    }
     rope.LoadTexture();
 
     GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformAmbientIntensity = 0,
         uniformAmbientColour = 0, uniformDiffuseIntensity = 0, uniformSpecularIntensity = 0, uniformLightDirection = 0;
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
+
+    float targetYaw = -45.0f;
+    float targetPtich = -30.0f;
+    float turnrad = 0.0f;
+    run_animation = 1; 
+    float yr = 0.0f ,zr = 0.0f;
+    irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
+    bool sound_played = false;
+    float velocity = 15.0f;
 
     // Loop until window closed
     while (!mainWindow.getShouldClose()) {
@@ -196,11 +225,19 @@ int main() {
         deltaTime = now - lastTime;
         lastTime = now;
 
+        if (trainPosition >= 0.0) {
+            if (animation_scene == 2 && trainPosition >= 20) {
+                camera.Move(deltaTime * -1.0f, deltaTime * 3.0f, 0.0f);
+                targetPtich += 3.0f * deltaTime;
+            }
+            targetYaw += 6.0f * deltaTime;
+            camera.Rotate(targetYaw,targetPtich);
+        }
+        else  
+        camera.Move(0.0f, 0.0f, deltaTime * velocity);
+
         // Get + Handle User Input
         glfwPollEvents();
-
-        camera.keyControl(mainWindow.getsKeys(), deltaTime);
-        camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
         // Clear the window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -212,35 +249,34 @@ int main() {
 
         // Create ImGui window
         ImGui::Begin("Trolley Problem");
-        // ImGui::Text("There's a runaway trolley headed towards five people tied up on one track.\nYou're standing next to a lever that can divert the trolley to another track,\nbut there's one person tied up there.\nYou must decide whether to pull the lever, sacrificing one person to save five,\nor do nothing and let the trolley continue, leading to the death of the five people:");
+        if(trainPosition < -40.0f) {
+            ImGui::Text("The time is running out");
+            ImGui::Combo("Animation Scene", &animation_scene, "The trolley turn\0The trolley moves straight\0");
+        }else 
+            if(trainPosition < -20.0f) {
+			    ImGui::Text("The time is running out");
+                ImGui::Combo("Animation Scene", &animation_scene, "The trolley turn\0The trolley moves straight\0The trolley goes up\0");
+		    }
 
-      // Start the ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        if(animation_scene == 2 && trainPosition >= -35.0f && !sound_played) {
+			SoundEngine->play2D("Music/FreeBird.mp3", GL_FALSE);
+            sound_played = true;
+		}
 
-        // Create ImGui window
-        ImGui::Begin("Scene Selection");
-        if (ImGui::Button("The trolley turn")) {
-            animation_scene = 0;
-        }
-        if (ImGui::Button("The trolley moves straight")) {
-            animation_scene = 1;
-        }
         ImGui::End();
 
-        // Rendering commands here
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // Clear the window
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        ImGui::End();
 
         // Rendering
         ImGui::Render();
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
         shaderList[0].UseShader();
         uniformModel = shaderList[0].GetModelLocation();
@@ -261,6 +297,7 @@ int main() {
         glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 
+
         // Animation
         if (run_animation) {
             wheelRotation += 300.0f * deltaTime; // Rotate the wheel at 100 degrees per second
@@ -268,7 +305,7 @@ int main() {
                 wheelRotation -= 360.0f; // Reset the angle to prevent overflow
             }
 
-            trainPosition += 10.0f * deltaTime;
+            trainPosition += velocity * deltaTime;
         }
 
         // Grass Plane
@@ -277,6 +314,14 @@ int main() {
         glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
         dirt.UseTexture();
         plane_mesh[0]->RenderMesh();
+
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 200.0f));
+        glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+        dirt.UseTexture();
+        plane_mesh[0]->RenderMesh();
+
 
         // Trolley
         for (size_t i = 0; i < trolley_mesh.size(); i++) {
@@ -287,7 +332,8 @@ int main() {
                 // First movement scenario
                 if (trainPosition < 60.0f) {
                     model = glm::translate(model, glm::vec3(0.0f, 0.0f, trainPosition));
-                } else {
+                }
+                else {
                     float diagonalPosition = trainPosition - 60.0f;
                     model = glm::translate(model, glm::vec3(diagonalPosition, 0.0f, 60.0f + diagonalPosition));
                     model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -301,7 +347,8 @@ int main() {
                 // Third movement scenario
                 if (trainPosition < 25.0f) {
                     model = glm::translate(model, glm::vec3(0.0f, 0.0f, trainPosition));
-                } else {
+                }
+                else {
                     float upwardPosition = trainPosition - 25.0f;
                     model = glm::translate(model, glm::vec3(0.0f, upwardPosition * glm::tan(glm::radians(30.0f)), 25.0f + upwardPosition));
                     model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -360,7 +407,6 @@ int main() {
                 wheel_mesh[j][i]->RenderMesh();
             }
         }
-
         // Rail
         switch (animation_scene) {
         case 0:
@@ -388,9 +434,11 @@ int main() {
             for (size_t i = 0; i < rail_mesh[2].size(); i++) {
                 model = glm::mat4(1.0f);
                 model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-                if (animation_scene == 2) {
-                    model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-                    model = glm::translate(model, glm::vec3(0.0f, -12.5f, -5.0f));
+                if (animation_scene == 2 && trainPosition>= -20.f) {
+                    if (turnrad <= 30.0f)
+                         turnrad += 0.15f, yr+= 0.0625f, zr +=0.025f;
+                    model = glm::rotate(model, glm::radians(-turnrad), glm::vec3(1.0f, 0.0f, 0.0f));
+                    model = glm::translate(model, glm::vec3(0.0f, -yr , -zr));
                 }
                 // ... (some code for positioning the model)
                 glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -401,12 +449,14 @@ int main() {
         }
 
         // Human
-        for (size_t i = 0; i < human_mesh[0].size(); i++) {
-            model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-            human.UseTexture();
-            human_mesh[0][i]->RenderMesh();
+        for (int j = 0; j < 7; j++) {
+            for (size_t i = 0; i < human_mesh[j].size(); i++) {
+                model = glm::mat4(1.0f);
+                model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+                glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+                human[j].UseTexture();
+                human_mesh[j][i]->RenderMesh();
+            }
         }
 
         //Rope
@@ -418,10 +468,17 @@ int main() {
             rope_mesh[i]->RenderMesh();
         }
 
+        //Leaver
+        for (size_t i = 0; i < leaver_mesh.size(); i++) {
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+            glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+            rope.UseTexture();
+            leaver_mesh[i]->RenderMesh();
+        }
+
         glUseProgram(0);
 
-        // ImGui rendering
-        ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         mainWindow.swapBuffers();

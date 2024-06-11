@@ -28,6 +28,9 @@
     <Filter Include="Source Files\OBJ">
       <UniqueIdentifier>{31a3cecc-10d1-4b2a-8da0-8e1177deeb88}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Music">
+      <UniqueIdentifier>{472e9780-7857-4063-a839-54a54ae5976d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -155,41 +158,67 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Obj\human1.obj">
+    <Object Include="Obj\rope1.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\rail1.obj">
+    </Object>
+    <Object Include="Obj\trolley_body.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\wheel6.obj">
+    </Object>
+    <Object Include="Obj\wheel1.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\rail2.obj">
+    </Object>
+    <Object Include="Obj\wheel2.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\rail3.obj">
+    </Object>
+    <Object Include="Obj\wheel3.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\rope1.obj">
+    </Object>
+    <Object Include="Obj\wheel4.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\trolley_body.obj">
+    </Object>
+    <Object Include="Obj\wheel5.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\wheel1.obj">
+    </Object>
+    <Object Include="Obj\wheel6.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\wheel2.obj">
+    </Object>
+    <Object Include="Obj\human1.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\wheel3.obj">
+    </Object>
+    <Object Include="Obj\human2.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\wheel4.obj">
+    </Object>
+    <Object Include="Obj\human3.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
-    <Resource Include="Obj\wheel5.obj">
+    </Object>
+    <Object Include="Obj\human4.obj">
       <Filter>Source Files\OBJ</Filter>
-    </Resource>
+    </Object>
+    <Object Include="Obj\human5.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Object>
+    <Object Include="Obj\human6.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Object>
+    <Object Include="Obj\human7.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Object>
+    <Object Include="Obj\leaver.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Object>
+    <Object Include="Obj\rail1.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Object>
+    <Object Include="Obj\rail2.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Object>
+    <Object Include="Obj\rail3.obj">
+      <Filter>Source Files\OBJ</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Music\FreeBird.mp3">
+      <Filter>Source Files\Music</Filter>
+    </Media>
   </ItemGroup>
 </Project>
